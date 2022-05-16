@@ -68,7 +68,7 @@ function App() {
       target = (start + end) / 2
     }
   }
-
+  console.log('=====console===== >>22 ')
   const generatePathWave = (width, height, mainWidth) => {
     const pathSize = width - mainWidth
     const halfWidth = mainWidth / 2 + pathSize
