@@ -68,7 +68,6 @@ function App() {
       target = (start + end) / 2
     }
   }
-  console.log('=====console===== >>22 ')
   const generatePathWave = (width, height, mainWidth) => {
     const pathSize = width - mainWidth
     const halfWidth = mainWidth / 2 + pathSize
@@ -146,123 +145,125 @@ function App() {
     <div className="App">
       <div className="App__top">oke</div>
 
-      <div className="App__bottom" ref={containerRef}>
-        <svg height={HEIGHT_CANVAS} width={WIDTH_SCREEN * LOOP_BACKGROUND}>
-          <path
-            d={Array.from({ length: LOOP_BACKGROUND })
-              .map((_, index) => {
-                return generatePathWave(
-                  WIDTH_SCREEN * (index + 1),
-                  HEIGHT_CANVAS,
-                  WIDTH_SCREEN
-                )[0]
-              })
-              .join(' ')}
-            strokeWidth="5"
-            fill="#C1E5F7"
-          />
-          <path
-            d={Array.from({ length: LOOP_BACKGROUND })
-              .map((_, index) => {
-                return generatePathWave(
-                  WIDTH_SCREEN * (index + 1),
-                  HEIGHT_CANVAS,
-                  WIDTH_SCREEN
-                )[1]
-              })
-              .join(' ')}
-            strokeWidth="5"
-            fill="#C1E5F7"
-          />
-          {generateInfoTide(WIDTH_SCREEN, HEIGHT_CANVAS, LOOP_BACKGROUND).map(
-            (e, index) => {
+      <div className="App__bottom">
+        <div className="App__bottom__container" ref={containerRef}>
+          <svg height={HEIGHT_CANVAS} width={WIDTH_SCREEN * LOOP_BACKGROUND}>
+            <path
+              d={Array.from({ length: LOOP_BACKGROUND })
+                .map((_, index) => {
+                  return generatePathWave(
+                    WIDTH_SCREEN * (index + 1),
+                    HEIGHT_CANVAS,
+                    WIDTH_SCREEN
+                  )[0]
+                })
+                .join(' ')}
+              strokeWidth="5"
+              fill="#C1E5F7"
+            />
+            <path
+              d={Array.from({ length: LOOP_BACKGROUND })
+                .map((_, index) => {
+                  return generatePathWave(
+                    WIDTH_SCREEN * (index + 1),
+                    HEIGHT_CANVAS,
+                    WIDTH_SCREEN
+                  )[1]
+                })
+                .join(' ')}
+              strokeWidth="5"
+              fill="#C1E5F7"
+            />
+            {generateInfoTide(WIDTH_SCREEN, HEIGHT_CANVAS, LOOP_BACKGROUND).map(
+              (e, index) => {
+                return (
+                  <g key={index}>
+                    <rect
+                      x={e.xRect}
+                      y={e.yRect}
+                      width="70"
+                      height="50"
+                      fill="#e4e4e4"
+                    ></rect>
+                    <text
+                      x={e.xRect + 21}
+                      y={e.yRect + 20}
+                      fontFamily="Verdana"
+                      fontSize="12"
+                      fill="black"
+                    >
+                      {e.tide}
+                    </text>
+                    <text
+                      x={e.xRect + 6.5}
+                      y={e.yRect + 40}
+                      fontFamily="Verdana"
+                      fontSize="12"
+                      fill="black"
+                    >
+                      {e.time}
+                    </text>
+                  </g>
+                )
+              }
+            )}
+            {positionShadow.map((e, index) => {
               return (
-                <g key={index}>
-                  <rect
-                    x={e.xRect}
-                    y={e.yRect}
-                    width="70"
-                    height="50"
-                    fill="#e4e4e4"
-                  ></rect>
-                  <text
-                    x={e.xRect + 21}
-                    y={e.yRect + 20}
-                    fontFamily="Verdana"
-                    fontSize="12"
-                    fill="black"
-                  >
-                    {e.tide}
-                  </text>
-                  <text
-                    x={e.xRect + 6.5}
-                    y={e.yRect + 40}
-                    fontFamily="Verdana"
-                    fontSize="12"
-                    fill="black"
-                  >
-                    {e.time}
-                  </text>
-                </g>
+                <rect
+                  key={index}
+                  x={e.x}
+                  y={e.y}
+                  width={!index ? WIDTH_SCREEN / 2 : WIDTH_SCREEN}
+                  height={HEIGHT_CANVAS}
+                  fill="black"
+                  opacity={0.2}
+                />
               )
-            }
-          )}
-          {positionShadow.map((e, index) => {
-            return (
-              <rect
-                key={index}
-                x={e.x}
-                y={e.y}
-                width={!index ? WIDTH_SCREEN / 2 : WIDTH_SCREEN}
-                height={HEIGHT_CANVAS}
-                fill="black"
-                opacity={0.2}
-              />
-            )
-          })}
-          <path
-            d={Array.from({ length: LOOP_BACKGROUND })
-              .map((_, index) => {
-                return index % 2 === 0
-                  ? generateLineSun(
-                      WIDTH_SCREEN * (index + 1),
-                      HEIGHT_CANVAS,
-                      WIDTH_SCREEN,
-                      index
-                    )
-                  : ''
-              })
-              .filter(e => e)
-              .join(` `)}
-            stroke="#FE8516"
-            ref={lineRef}
-            strokeWidth={2}
-            strokeLinecap="round"
-            fill="none"
-          />
+            })}
+            <path
+              d={Array.from({ length: LOOP_BACKGROUND })
+                .map((_, index) => {
+                  return index % 2 === 0
+                    ? generateLineSun(
+                        WIDTH_SCREEN * (index + 1),
+                        HEIGHT_CANVAS,
+                        WIDTH_SCREEN,
+                        index
+                      )
+                    : ''
+                })
+                .filter(e => e)
+                .join(` `)}
+              stroke="#FE8516"
+              ref={lineRef}
+              strokeWidth={2}
+              strokeLinecap="round"
+              fill="none"
+            />
 
-          <image
-            href="/sun.svg"
-            width="20"
-            height="20"
+            <image
+              href="/sun.svg"
+              width="20"
+              height="20"
+              style={{
+                display: hiddenSun(point.x, positionShadow) ? 'none' : 'block',
+              }}
+              x={point.x}
+              y={point.y}
+            />
+          </svg>
+          <div className="App__bottom__kim"></div>
+          <img
+            className="App__bottom__moon"
+            src={`/moon.svg`}
+            alt="moon"
             style={{
-              display: hiddenSun(point.x, positionShadow) ? 'none' : 'block',
+              display: hiddenSun(point.x, positionShadow) ? 'block' : 'none',
             }}
-            x={point.x}
-            y={point.y}
           />
-        </svg>
-        <div className="App__bottom__kim"></div>
-        <img
-          className="App__bottom__moon"
-          src={`/moon.svg`}
-          alt="moon"
-          style={{
-            display: hiddenSun(point.x, positionShadow) ? 'block' : 'none',
-          }}
-        />
-        <p className="App__bottom__time">{currentTime.time}</p>
-        <p className="App__bottom_day">Day {currentTime.day} </p>
+          <p className="App__bottom__time">{currentTime.time}</p>
+          <p className="App__bottom_day">Day {currentTime.day} </p>
+        </div>
       </div>
     </div>
   )
