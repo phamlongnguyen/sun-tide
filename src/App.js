@@ -2,6 +2,7 @@ import React from 'react'
 import './App.scss'
 import ChartWave from './components/ChartWave'
 import Weather from './components/Weather'
+import { chartWeather } from './Services/mockData'
 
 function App() {
   return (
@@ -10,7 +11,7 @@ function App() {
         <Weather />
       </div>
       <div className="App__bottom">
-        <ChartWave />
+        <ChartWave data={chartWeather} />
       </div>
     </div>
   )

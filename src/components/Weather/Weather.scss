@@ -22,6 +22,15 @@
       .Weather__top__location--current {
         display: flex;
         align-items: center;
+        select {
+          margin-top: 8px;
+          background: transparent;
+          border: transparent;
+          max-width: 150px;
+          color: #fff;
+          cursor: pointer;
+          outline: none;
+        }
       }
     }
 
@@ -36,10 +45,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
-    .Weather__center__cloud {
-      height: 80px;
-      width: 80px;
+    .Weather__center__info {
+      display: flex;
+      align-items: center;
+      .Weather__center__info--cloud {
+        height: 80px;
+        width: 80px;
+        margin-right: 10px;
+      }
+      h1{
+        margin: 0;
+      }
+      .Weather__center__info--deg{
+        display: flex;
+        align-items: center;
+        >:first-child{
+          margin-right: 20px;
+        }
+      }
     }
   }
 

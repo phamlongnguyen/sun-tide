@@ -1,12 +1,12 @@
 import React from 'react'
 import moment from 'moment'
 import './ChartWave.scss'
+import TideShape from '../TideShape'
+import InfoWeather from '../InfoWeather'
 
-const LOOP_BACKGROUND = 10
-const HEIGHT_WAVE = 50
 const ALL_MINUTES_ONE_DAY = 720
 
-const ChartWave = () => {
+const ChartWave = ({ data = [] }) => {
   const WIDTH_SCREEN = window.innerWidth
   const HEIGHT_CANVAS = window.innerHeight / 2
   const lineRef = React.useRef(null)
@@ -68,26 +68,6 @@ const ChartWave = () => {
       target = (start + end) / 2
     }
   }
-  const generatePathWave = (width, height, mainWidth) => {
-    const pathSize = width - mainWidth
-    const halfWidth = mainWidth / 2 + pathSize
-    const aQuarterWidth = mainWidth / 4 + pathSize
-    const halfHeight = height / 2
-    const upWave = halfHeight + HEIGHT_WAVE
-    const downWave = halfHeight - HEIGHT_WAVE
-
-    const leftPoint = `M ${pathSize},${upWave} C${aQuarterWidth},${upWave} ${aQuarterWidth},${downWave} ${halfWidth},${downWave} V ${height} L ${
-      width - mainWidth
-    } ${height} z`
-
-    const rightPoint = `M ${halfWidth - 1},${halfHeight - HEIGHT_WAVE} C${
-      mainWidth / 4 + halfWidth
-    },${downWave} ${
-      mainWidth / 4 + halfWidth
-    },${upWave} ${width},${upWave} V ${height} L ${pathSize} ${height} z`
-
-    return [leftPoint, rightPoint]
-  }
 
   const generatePathShadow = (width, timeLoop) => {
     let count = width + width / 2
@@ -99,27 +79,6 @@ const ChartWave = () => {
       }
     })
     return [{ x: 0, y: 0 }, ...newItem]
-  }
-
-  const generateInfoTide = (width, height, timeLoop) => {
-    const oneMinutes = WIDTH_SCREEN / ALL_MINUTES_ONE_DAY
-    const spaceWave = 70
-    const newItem = Array.from({ length: timeLoop / 0.5 }).map((_, index) => {
-      return {
-        xRect: (index * width) / 2 - 35,
-        yRect:
-          index % 2 === 0
-            ? height / 2 + HEIGHT_WAVE - spaceWave
-            : height / 2 - HEIGHT_WAVE - spaceWave,
-        time: moment
-          .utc()
-          .startOf('day')
-          .add((index * width) / 2 / oneMinutes, 'minutes')
-          .format('hh:mm a'),
-        tide: index % 2 === 0 ? '0.3m' : '2m',
-      }
-    })
-    return newItem
   }
 
   const generateLineSun = (width, height, mainWidth, index) => {
@@ -140,69 +99,25 @@ const ChartWave = () => {
       return e.x <= x && e.x + (!index ? WIDTH_SCREEN / 2 : WIDTH_SCREEN) > x
     })
 
-  const positionShadow = generatePathShadow(WIDTH_SCREEN, LOOP_BACKGROUND)
+  const chartWeather = data.reduce((acc, item) => {
+    const key = moment(item.hour).format('YYYY-MM-DD')
+    return acc[key]
+      ? { ...acc, [key]: [...acc[key], item] }
+      : { ...acc, [key]: [item] }
+  }, {})
+  const positionShadow = generatePathShadow(
+    WIDTH_SCREEN,
+    Object.keys(chartWeather).length * 2
+  )
+
   return (
     <div className="Chart__wave__container" ref={containerRef}>
-      <svg height={HEIGHT_CANVAS} width={WIDTH_SCREEN * LOOP_BACKGROUND}>
-        <path
-          d={Array.from({ length: LOOP_BACKGROUND })
-            .map((_, index) => {
-              return generatePathWave(
-                WIDTH_SCREEN * (index + 1),
-                HEIGHT_CANVAS,
-                WIDTH_SCREEN
-              )[0]
-            })
-            .join(' ')}
-          strokeWidth="5"
-          fill="#C1E5F7"
-        />
-        <path
-          d={Array.from({ length: LOOP_BACKGROUND })
-            .map((_, index) => {
-              return generatePathWave(
-                WIDTH_SCREEN * (index + 1),
-                HEIGHT_CANVAS,
-                WIDTH_SCREEN
-              )[1]
-            })
-            .join(' ')}
-          strokeWidth="5"
-          fill="#C1E5F7"
-        />
-        {generateInfoTide(WIDTH_SCREEN, HEIGHT_CANVAS, LOOP_BACKGROUND).map(
-          (e, index) => {
-            return (
-              <g key={index}>
-                <rect
-                  x={e.xRect}
-                  y={e.yRect}
-                  width="70"
-                  height="50"
-                  fill="#e4e4e4"
-                ></rect>
-                <text
-                  x={e.xRect + 21}
-                  y={e.yRect + 20}
-                  fontFamily="Verdana"
-                  fontSize="12"
-                  fill="black"
-                >
-                  {e.tide}
-                </text>
-                <text
-                  x={e.xRect + 6.5}
-                  y={e.yRect + 40}
-                  fontFamily="Verdana"
-                  fontSize="12"
-                  fill="black"
-                >
-                  {e.time}
-                </text>
-              </g>
-            )
-          }
-        )}
+      <svg
+        height={HEIGHT_CANVAS}
+        width={WIDTH_SCREEN * Object.keys(chartWeather).length * 2}
+      >
+        <TideShape data={chartWeather} />
+        <InfoWeather data={data} />
         {positionShadow.map((e, index) => {
           return (
             <rect
@@ -217,7 +132,7 @@ const ChartWave = () => {
           )
         })}
         <path
-          d={Array.from({ length: LOOP_BACKGROUND })
+          d={Array.from({ length: Object.keys(chartWeather).length * 3 })
             .map((_, index) => {
               return index % 2 === 0
                 ? generateLineSun(
