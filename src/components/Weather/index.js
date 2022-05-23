@@ -5,41 +5,18 @@ import { IoIosNotifications } from 'react-icons/io'
 import { AiOutlinePlusCircle } from 'react-icons/ai'
 import { FaTemperatureHigh } from 'react-icons/fa'
 import { IoIosWater } from 'react-icons/io'
-import { getCountries, getWeatherByCountry } from '../../Services'
-
-const initCountry = {
-  weather: [
-    {
-      id: 803,
-      main: 'Clouds',
-      description: 'broken clouds',
-      icon: '04d',
-    },
-  ],
-  main: {
-    temp: 302.23,
-    feels_like: 305.68,
-    temp_min: 302.23,
-    temp_max: 302.23,
-    pressure: 1008,
-    humidity: 68,
-    sea_level: 1008,
-    grnd_level: 973,
-  },
-  wind: {
-    speed: 0.5,
-    deg: 68,
-    gust: 0.82,
-  },
-}
+import { getCountries, getWeatherByCountry } from '../../services'
+import { initWeather } from '../../services/mockData'
 
 const Weather = () => {
   const [countries, setCountries] = React.useState([])
   const [selectCountry, setSelectedCountry] = React.useState('VN')
-  const [weatherContry, setWeatherCountry] = React.useState(initCountry)
+  const [weatherContry, setWeatherCountry] = React.useState(initWeather)
 
   React.useEffect(() => {
-    getCountries().then(rs => setCountries(rs?.data || []))
+    getCountries().then(rs => {
+      setCountries(rs?.data?.data || [])
+    })
   }, [])
 
   React.useEffect(() => {
@@ -48,13 +25,16 @@ const Weather = () => {
       getWeatherByCountry({
         lat: country.lat,
         long: country.long,
-      }).then(res => setWeatherCountry(res))
+      }).then(res => {
+        setWeatherCountry(res?.data)
+      })
     }
   }, [selectCountry, countries])
 
-  const onChangeCountry = async evt => {
+  const onChangeCountry = evt => {
     setSelectedCountry(evt.target.value)
   }
+
   return (
     <div className="Weather__container">
       <div className="Weather__top">
@@ -64,12 +44,17 @@ const Weather = () => {
           <p className="Weather__top__location--current">
             <select
               id="countries"
+              data-testid="select-location"
               onChange={onChangeCountry}
               value={selectCountry}
             >
               {countries.map(e => {
                 return (
-                  <option key={e.iso2} value={e.iso2}>
+                  <option
+                    key={e.iso2}
+                    value={e.iso2}
+                    data-testid="option-location"
+                  >
                     {e.name}
                   </option>
                 )
@@ -79,21 +64,23 @@ const Weather = () => {
         </div>
         <IoIosNotifications />
       </div>
-      <div className="Weather__center">
+      <div className="Weather__center" data-testid="info-cloud">
         <div className="Weather__center__info">
           <img
             className="Weather__center__info--cloud"
-            src={`https://openweathermap.org/img/wn/${weatherContry.weather[0].icon}@2x.png`}
+            src={`https://openweathermap.org/img/wn/${weatherContry?.weather?.[0].icon}@2x.png`}
             alt="moon"
           />
           <div>
-            <h1>{weatherContry.weather[0].main}</h1>
+            <h1 data-testid="cloud--title" id="nguyen">
+              {weatherContry?.weather?.[0]?.main}
+            </h1>
             <div className="Weather__center__info--deg">
               <p>
-                <FaTemperatureHigh /> {weatherContry.wind.deg} C
+                <FaTemperatureHigh /> {weatherContry?.wind?.deg} C
               </p>
               <p>
-                <IoIosWater /> {weatherContry.wind.gust}%
+                <IoIosWater /> {weatherContry?.wind?.gust}%
               </p>
             </div>
           </div>
@@ -103,14 +90,14 @@ const Weather = () => {
         <div className="Weather__bottom__info">
           <div className="Weather__bottom__info--title">PSI</div>
           <div className="Weather__bottom__info--psi">
-            {weatherContry.main.feels_like}
+            {weatherContry?.main.feels_like}
           </div>
           <div>Good</div>
         </div>
         <div className="Weather__bottom__info">
           <div className="Weather__bottom__info--title">RAIN</div>
           <div className="Weather__bottom__info--rain">
-            {weatherContry.main.humidity}
+            {weatherContry?.main.humidity}
           </div>
           <div>mm</div>
         </div>

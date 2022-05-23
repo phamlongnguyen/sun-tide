@@ -1,12 +1,12 @@
 import React from 'react'
 import moment from 'moment'
-import './ChartWave.scss'
+import './Chart.scss'
 import TideShape from '../TideShape'
 import InfoWeather from '../InfoWeather'
 
 const ALL_MINUTES_ONE_DAY = 720
 
-const ChartWave = ({ data = [] }) => {
+const Chart = ({ data = [] }) => {
   const WIDTH_SCREEN = window.innerWidth
   const HEIGHT_CANVAS = window.innerHeight / 2
   const lineRef = React.useRef(null)
@@ -21,7 +21,6 @@ const ChartWave = ({ data = [] }) => {
     const container = containerRef.current
     const onScroll = () => {
       const oneMinutes = WIDTH_SCREEN / ALL_MINUTES_ONE_DAY
-
       setPoint({
         x: container.scrollLeft + WIDTH_SCREEN / 2 - 10,
         y:
@@ -33,9 +32,12 @@ const ChartWave = ({ data = [] }) => {
             )
           ) - 10,
       })
-      const day = (container.scrollLeft + WIDTH_SCREEN / 2) / (WIDTH_SCREEN * 2)
+      const day =
+        parseInt(
+          (container.scrollLeft + WIDTH_SCREEN / 2) / (WIDTH_SCREEN * 2)
+        ) + 1
       setCurrentTime({
-        day: parseInt(day) + 1,
+        day: day,
         time: moment
           .utc()
           .startOf('day')
@@ -48,16 +50,16 @@ const ChartWave = ({ data = [] }) => {
     return () => container.removeEventListener('scroll', onScroll)
   }, [WIDTH_SCREEN])
 
-  function findY(path, x, width) {
-    var pathLength = path.getTotalLength()
+  const findY = (path, x, width) => {
+    var pathLength = path?.getTotalLength?.()
     var start = 0
     var end = pathLength
     var target = width / 2
 
-    x = Math.max(x, path.getPointAtLength(0).x)
-    x = Math.min(x, path.getPointAtLength(pathLength).x)
+    x = Math.max(x, path?.getPointAtLength?.(0).x)
+    x = Math.min(x, path?.getPointAtLength?.(pathLength).x)
     while (target >= start && target <= pathLength) {
-      var pos = path.getPointAtLength(target)
+      var pos = path?.getPointAtLength(target)
       if (Math.abs(pos.x - x) < 0.001) {
         return pos.y
       } else if (pos.x > x) {
@@ -70,7 +72,7 @@ const ChartWave = ({ data = [] }) => {
   }
 
   const generatePathShadow = (width, timeLoop) => {
-    let count = width + width / 2
+    let count = width * 1.5
     const newItem = Array.from({ length: timeLoop }).map((_, index) => {
       count += !index ? 0 : width * 2
       return {
@@ -113,6 +115,7 @@ const ChartWave = ({ data = [] }) => {
   return (
     <div className="Chart__wave__container" ref={containerRef}>
       <svg
+        data-testid="chart-svg"
         height={HEIGHT_CANVAS}
         width={WIDTH_SCREEN * Object.keys(chartWeather).length * 2}
       >
@@ -152,30 +155,24 @@ const ChartWave = ({ data = [] }) => {
           fill="none"
         />
 
-        <image
-          href="/sun.svg"
-          width="20"
-          height="20"
-          style={{
-            display: hiddenSun(point.x, positionShadow) ? 'none' : 'block',
-          }}
-          x={point.x}
-          y={point.y}
-        />
+        {!hiddenSun(point.x, positionShadow) && (
+          <image
+            href="/sun.svg"
+            width="20"
+            height="20"
+            x={point.x}
+            y={point.y}
+          />
+        )}
       </svg>
       <div className="Chart__wave__kim"></div>
-      <img
-        className="Chart__wave__moon"
-        src={`/moon.svg`}
-        alt="moon"
-        style={{
-          display: hiddenSun(point.x, positionShadow) ? 'block' : 'none',
-        }}
-      />
+      {hiddenSun(point.x, positionShadow) && (
+        <img className="Chart__wave__moon" src={`/moon.svg`} alt="moon" />
+      )}
       <p className="Chart__wave__time">{currentTime.time}</p>
       <p className="Chart__wave__day">Day {currentTime.day} </p>
     </div>
   )
 }
 
-export default ChartWave
+export default Chart

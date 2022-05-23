@@ -60,3 +60,30 @@ export const chartWeather = [
     sun: 0,
   },
 ]
+
+export const initWeather = {
+  weather: [
+    {
+      id: 803,
+      main: 'Clouds',
+      description: 'broken clouds',
+      icon: '04d',
+    },
+  ],
+  main: {
+    temp: 302.23,
+    feels_like: 305.68,
+    temp_min: 302.23,
+    temp_max: 302.23,
+    pressure: 1008,
+    humidity: 68,
+    sea_level: 1008,
+    grnd_level: 973,
+  },
+  wind: {
+    speed: 0.5,
+    deg: 68,
+    gust: 0.82,
+  },
+}
+
