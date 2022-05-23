@@ -11,7 +11,6 @@ const Chart = ({ data = [] }) => {
   const HEIGHT_CANVAS = window.innerHeight / 2
   const lineRef = React.useRef(null)
   const containerRef = React.useRef(null)
-  const [point, setPoint] = React.useState({ x: 0, y: 0 })
   const [currentTime, setCurrentTime] = React.useState({
     time: '06:00 am',
     day: '1',
@@ -21,17 +20,7 @@ const Chart = ({ data = [] }) => {
     const container = containerRef.current
     const onScroll = () => {
       const oneMinutes = WIDTH_SCREEN / ALL_MINUTES_ONE_DAY
-      setPoint({
-        x: container.scrollLeft + WIDTH_SCREEN / 2 - 10,
-        y:
-          Number(
-            findY(
-              lineRef.current,
-              container.scrollLeft + WIDTH_SCREEN / 2,
-              WIDTH_SCREEN
-            )
-          ) - 10,
-      })
+
       const day =
         parseInt(
           (container.scrollLeft + WIDTH_SCREEN / 2) / (WIDTH_SCREEN * 2)
@@ -49,27 +38,6 @@ const Chart = ({ data = [] }) => {
     container.addEventListener('scroll', onScroll)
     return () => container.removeEventListener('scroll', onScroll)
   }, [WIDTH_SCREEN])
-
-  const findY = (path, x, width) => {
-    var pathLength = path?.getTotalLength?.()
-    var start = 0
-    var end = pathLength
-    var target = width / 2
-
-    x = Math.max(x, path?.getPointAtLength?.(0).x)
-    x = Math.min(x, path?.getPointAtLength?.(pathLength).x)
-    while (target >= start && target <= pathLength) {
-      var pos = path?.getPointAtLength(target)
-      if (Math.abs(pos.x - x) < 0.001) {
-        return pos.y
-      } else if (pos.x > x) {
-        end = target
-      } else {
-        start = target
-      }
-      target = (start + end) / 2
-    }
-  }
 
   const generatePathShadow = (width, timeLoop) => {
     let count = width * 1.5
@@ -154,21 +122,12 @@ const Chart = ({ data = [] }) => {
           strokeLinecap="round"
           fill="none"
         />
-
-        {!hiddenSun(point.x, positionShadow) && (
-          <image
-            href="/sun.svg"
-            width="20"
-            height="20"
-            x={point.x}
-            y={point.y}
-          />
-        )}
       </svg>
       <div className="Chart__wave__kim"></div>
-      {hiddenSun(point.x, positionShadow) && (
-        <img className="Chart__wave__moon" src={`/moon.svg`} alt="moon" />
-      )}
+      {hiddenSun(
+        (containerRef.current?.scrollLeft || 0) + WIDTH_SCREEN / 2 - 10,
+        positionShadow
+      ) && <img className="Chart__wave__moon" src={`/moon.svg`} alt="moon" />}
       <p className="Chart__wave__time">{currentTime.time}</p>
       <p className="Chart__wave__day">Day {currentTime.day} </p>
     </div>
